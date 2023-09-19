@@ -123,12 +123,12 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
         new_instance = HBNBCommand.classes[words[0]]()
-        storage.save()
+        
         for i in range(1, len(words)):
             params = self.handle_args(words[i])
             if params:
                 new_instance.__dict__[params[0]] = params[1]
-
+        storage.new(new_instance)
         print(new_instance.id)
         storage.save()
 
