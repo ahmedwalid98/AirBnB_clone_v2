@@ -1,8 +1,13 @@
 #!/usr/bin/python3
 """ Place Module for HBNB project """
+from os import getenv
+import models
+from models.review import Review
 from models.base_model import BaseModel
 from models.base_model import Base
 from sqlalchemy import Column, String, Integer, Float, ForeignKey
+from sqlalchemy.orm import relationship
+
 
 
 class Place(BaseModel, Base):
@@ -19,3 +24,11 @@ class Place(BaseModel, Base):
     latitude = Column(Float)
     longitude = Column(Float)
     amenity_ids = []
+    reviews = relationship("Review", backref="place", cascade="delete")
+    
+    if getenv("HBNB_TYPE_STORAGE", None) != "db":
+        @property
+        def reviews(self):
+            """Get a list of all linked Reviews."""
+            all_reviews = models.storage.all(Review)
+            return [review for review in all_reviews.values() if review.place_id == self.id]
