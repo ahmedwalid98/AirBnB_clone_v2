@@ -11,40 +11,36 @@ env.hosts = ['100.26.211.99', '54.80.43.239']
 
 
 def do_pack():
-    """zipping folder"""
+    """generates a tgz archive"""
     try:
-        if not isdir('versions'):
-            local("mkdir -p versions")
-        now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        filename = "versions/web_static_{}.tgz".format(now)
-        local("tar -cvzf {} web_static".format(filename))
-        return filename
-    except Exception:
+        date = datetime.now().strftime("%Y%m%d%H%M%S")
+        if isdir("versions") is False:
+            local("mkdir versions")
+        file_name = "versions/web_static_{}.tgz".format(date)
+        local("tar -cvzf {} web_static".format(file_name))
+        return file_name
+    except:
         return None
 
 
 def do_deploy(archive_path):
-    """
-        deploy on server
-    """
+    """distributes an archive to the web servers"""
     if exists(archive_path) is False:
         return False
     try:
-        file = archive_path.split('/')[-1]
-        no_exten = file.split('.')[0]
-        dirc = '/data/web_static/releases/'
+        file_n = archive_path.split("/")[-1]
+        no_ext = file_n.split(".")[0]
+        path = "/data/web_static/releases/"
         put(archive_path, '/tmp/')
-        run('mkdir -p {}{}'.format(dirc, no_exten))
-        run('tar -xzf /tmp/web_static_20231005184742.tgz -C {}{}/'
-            .format(dirc, no_exten))
-        run('rm /tmp/{}.tgz'.format(no_exten))
-        run('mv {}{}/web_static/* {}{}/'
-            .format(dirc, no_exten, dirc, no_exten))
-        run('rm -rf {}{}/web_static'.format(dirc, no_exten))
+        run('mkdir -p {}{}/'.format(path, no_ext))
+        run('tar -xzf /tmp/{} -C {}{}/'.format(file_n, path, no_ext))
+        run('rm /tmp/{}'.format(file_n))
+        run('mv {0}{1}/web_static/* {0}{1}/'.format(path, no_ext))
+        run('rm -rf {}{}/web_static'.format(path, no_ext))
         run('rm -rf /data/web_static/current')
-        run('ln -s {}{} /data/web_static/current'.format(dirc, no_exten))
+        run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
         return True
-    except Exception:
+    except:
         return False
 
 
