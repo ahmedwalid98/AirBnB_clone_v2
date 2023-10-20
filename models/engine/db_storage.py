@@ -11,6 +11,7 @@ from models.user import User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
+
 class DBStorage():
     __engine = None
     __session = None
@@ -25,7 +26,7 @@ class DBStorage():
                                       ), pool_logging_name=True)
         if getenv('HBNB_ENV ') == 'test':
             Base.metadata.drop_all(self.__engine)
-    
+
     def all(self, cls=None):
         """Query on the curret database session all objects of the given class.
 
@@ -42,12 +43,11 @@ class DBStorage():
             objs.extend(self.__session.query(Review).all())
             objs.extend(self.__session.query(Amenity).all())
         else:
-            if type(cls) == str:
+            if isinstance(cls, type(str)):
                 cls = eval(cls)
             objs = self.__session.query(cls)
         return {"{}.{}".format(type(o).__name__, o.id): o for o in objs}
 
-    
     def new(self, obj):
         """
             method to add new object to th db
@@ -57,20 +57,20 @@ class DBStorage():
     def save(self):
         """Commit all changes to the current database session."""
         self.__session.commit()
-    
+
     def delete(self, obj=None):
         """Delete object if its not none"""
         if obj is not None:
             self.__session.delete(obj)
-    
+
     def reload(self):
         """Reloads all data from the database"""
         Base.metadata.create_all(self.__engine)
         session_factory = sessionmaker(bind=self.__engine,
-                                      expire_on_commit=False)
+                                       expire_on_commit=False)
         Session = scoped_session(session_factory)
         self.__session = Session()
-    
+
     def close(self):
         """Close the working SQLAlchemy session."""
         self.__session.close()
