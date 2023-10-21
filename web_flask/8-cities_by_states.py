@@ -60,7 +60,6 @@ def get_citites_list():
     states = storage.all("State").values()
     return render_template('8-cities_by_states.html', states=states)
 
-
 @app.teardown_appcontext
 def teardown_db(exception):
     """closes the storage on teardown"""
